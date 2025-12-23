@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skor - Hewan & Habitatnya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px) scale(.98)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        .pop-in {
+            animation: popIn .75s ease-out both;
+        }
+
+        .delay-1 {
+            animation-delay: .06s;
+        }
+
+        .delay-2 {
+            animation-delay: .14s;
+        }
+
+        .delay-3 {
+            animation-delay: .22s;
+        }
+
+        @keyframes softPulse {
+
+            0%,
+            100% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.03)
+            }
+        }
+
+        .pulse-soft {
+            animation: softPulse 2.8s ease-in-out infinite;
+        }
+
+        @keyframes tada {
+            0% {
+                transform: scale(1)
+            }
+
+            30% {
+                transform: scale(1.08)
+            }
+
+            60% {
+                transform: scale(.99)
+            }
+
+            100% {
+                transform: scale(1)
+            }
+        }
+
+        .tada {
+            animation: tada .55s ease-out both;
+        }
+
+        .tap {
+            transform: translateY(0);
+            transition: transform .12s ease;
+        }
+
+        .tap:active {
+            transform: translateY(2px) scale(.99);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .pop-in,
+            .pulse-soft,
+            .tada {
+                animation: none !important;
+            }
+
+            .tap {
+                transition: none !important;
+            }
+        }
+    </style>
+
+    <script defer>
+        window.addEventListener("DOMContentLoaded", () => {
+            const s = Number(localStorage.getItem("lastQuizScore") || "0");
+            const t = Number(localStorage.getItem("lastQuizTotal") || "0");
+            const pct = t ? Math.round((s / t) * 100) : 0;
+
+            const scoreEl = document.getElementById("score");
+            const pctEl = document.getElementById("pct");
+
+            scoreEl.textContent = `${s} / ${t}`;
+            pctEl.textContent = `${pct}%`;
+
+            scoreEl.classList.add("tada");
+            if (pct >= 80) pctEl.classList.add("pulse-soft");
+
+            let msg = "Semangat! Coba belajar materi lagi ya.";
+            if (pct >= 80) msg = "Hebat! Kamu sudah paham habitat hewan!";
+            else if (pct >= 60) msg = "Bagus! Tinggal sedikit lagi.";
+            document.getElementById("msg").textContent = msg;
+
+            const badge = document.getElementById("badge");
+            if (pct >= 80) badge.textContent = "Juara Hebat!";
+            else if (pct >= 60) badge.textContent = "Pintar!";
+            else badge.textContent = "Semangat!";
+        });
+    </script>
+</head>
+
+<body class="min-h-screen bg-slate-900 bg-[url('./assets/1.png')] bg-cover bg-center bg-no-repeat text-slate-900">
+    <div class="relative z-10 max-w-3xl mx-auto px-5 py-10">
+        <header class="flex items-center justify-between gap-3 pop-in">
+            <a href="index.html"
+                class="tap inline-flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow border border-white font-bold text-slate-700 hover:text-slate-900">
+                ← Beranda 
+            </a>
+            <a href="kuis.html"
+                class="tap inline-flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow border border-white font-bold text-slate-700 hover:text-slate-900">
+                Ulangi Kuis
+            </a>
+        </header>
+
+
+        <main class="mt-8 rounded-[28px] bg-white/85 p-8 text-center shadow-xl border border-white pop-in delay-1">
+            <div
+                class="inline-flex items-center gap-2 bg-sky-500 text-white font-extrabold px-4 py-2 rounded-full shadow pulse-soft hover:animate-none">
+                <span id="badge">Semangat!</span>
+            </div>
+            <div class="mt-5 text-sm text-slate-600 font-extrabold">Skor Kamu</div>
+            <div id="score" class="mt-2 text-4xl md:text-5xl font-extrabold text-slate-900"></div>
+            <div id="pct" class="mt-2 text-sky-600 font-extrabold text-2xl"></div>
+            <p id="msg" class="mt-4 text-slate-700 font-medium"></p>
+            <div class="mt-7 flex flex-col md:flex-row gap-3 justify-center pop-in delay-2">
+                <a href="materi.html"
+                    class="tap pulse-soft hover:animate-none rounded-2xl bg-sky-400 px-6 py-4 text-lg font-extrabold text-slate-900 shadow hover:bg-sky-300 transition">
+                    Belajar Materi ➜
+                </a>
+                <a href="kuis.html"
+                    class="tap rounded-2xl border border-white bg-white/80 px-6 py-4 text-lg font-extrabold text-slate-800 shadow hover:bg-white transition">
+                    Main Kuis Lagi 
+                </a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

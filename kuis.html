@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kuis - Hewan & Habitatnya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="./data.js"></script>
+    <style>
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px) scale(.98)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        .pop-in {
+            animation: popIn .75s ease-out both;
+        }
+
+        .delay-1 {
+            animation-delay: .06s;
+        }
+
+        .delay-2 {
+            animation-delay: .14s;
+        }
+
+        @keyframes softPulse {
+
+            0%,
+            100% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.03)
+            }
+        }
+
+        .pulse-soft {
+            animation: softPulse 2.8s ease-in-out infinite;
+        }
+
+        @keyframes shakeNo {
+
+            0%,
+            100% {
+                transform: translateX(0)
+            }
+
+            20% {
+                transform: translateX(-4px)
+            }
+
+            40% {
+                transform: translateX(4px)
+            }
+
+            60% {
+                transform: translateX(-3px)
+            }
+
+            80% {
+                transform: translateX(3px)
+            }
+        }
+
+        .shake-no {
+            animation: shakeNo .35s ease-in-out;
+        }
+
+        @keyframes tadaYes {
+            0% {
+                transform: scale(1)
+            }
+
+            30% {
+                transform: scale(1.06)
+            }
+
+            60% {
+                transform: scale(.99)
+            }
+
+            100% {
+                transform: scale(1)
+            }
+        }
+
+        .tada-yes {
+            animation: tadaYes .35s ease-out;
+        }
+
+        .tap {
+            transform: translateY(0);
+            transition: transform .12s ease;
+        }
+
+        .tap:active {
+            transform: translateY(2px) scale(.99);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .pop-in,
+            .pulse-soft,
+            .shake-no,
+            .tada-yes {
+                animation: none !important;
+            }
+
+            .tap {
+                transition: none !important;
+            }
+        }
+
+        .slot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 52px;
+            border-radius: 16px;
+            border: 2px dashed rgba(255, 255, 255, .9);
+            background: rgba(255, 255, 255, .75);
+            font-weight: 900;
+            font-size: 22px;
+            color: #0f172a;
+        }
+
+        .slot.filled {
+            border-style: solid;
+        }
+
+        .letter-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            height: 52px;
+            border-radius: 18px;
+            border: 2px solid rgba(255, 255, 255, .9);
+            background: rgba(255, 255, 255, .9);
+            font-weight: 900;
+            font-size: 20px;
+            color: #0f172a;
+            box-shadow: 0 10px 20px rgba(2, 6, 23, .12);
+        }
+
+        .letter-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+    </style>
+
+    <script defer>
+        function showFeedback(ok, customHtml) {
+            const fb = document.getElementById("feedback");
+            fb.classList.remove("hidden");
+            fb.classList.remove("shake-no", "tada-yes");
+            fb.className =
+                "mt-5 rounded-[22px] border border-white bg-white/80 p-4 shadow font-extrabold text-slate-900 " +
+                (ok ? "tada-yes" : "shake-no");
+
+            fb.innerHTML = customHtml
+                ? customHtml
+                : (ok
+                    ? `<span class="text-emerald-600">Benar!</span> JosJis!`
+                    : `<span class="text-rose-600">Belum tepat.</span> Coba lagi ya 😊`);
+        }
+
+        function lockNext() {
+            document.getElementById("btnNext").classList.remove("hidden");
+            document.getElementById("btnHint").disabled = true;
+        }
+
+        function resetFeedbackUI() {
+            const fb = document.getElementById("feedback");
+            fb.classList.add("hidden");
+            fb.classList.remove("shake-no", "tada-yes");
+            document.getElementById("btnNext").classList.add("hidden");
+            document.getElementById("btnHint").disabled = false;
+        }
+
+        function renderMCQ(q, score) {
+            const opts = document.getElementById("options");
+            opts.innerHTML = "";
+
+            q.options.forEach((op) => {
+                const btn = document.createElement("button");
+                btn.className =
+                    "tap w-full text-left rounded-[22px] border border-white bg-white/85 p-4 shadow " +
+                    "hover:bg-white/95 transition disabled:opacity-75 disabled:cursor-not-allowed";
+
+                btn.innerHTML = `
+        <div class="flex items-center justify-between gap-3">
+          <div class="font-extrabold text-slate-900 text-lg">${op.text}</div>
+        </div>
+      `;
+
+                btn.onclick = () => {
+                    Array.from(opts.querySelectorAll("button")).forEach(b => b.disabled = true);
+
+                    const ok = !!op.correct;
+                    if (ok) {
+                        const newScore = score + 1;
+                        sessionStorage.setItem("quizScore", String(newScore));
+                        document.getElementById("scoreBadge").textContent = `${newScore}`;
+                    }
+                    showFeedback(ok, ok
+                        ? `<span class="text-emerald-600">Benar!</span> JosJis!`
+                        : `<span class="text-rose-600">Belum tepat.</span> Bisa lihat petunjuk dulu ya.`
+                    );
+                    lockNext();
+                };
+
+                opts.appendChild(btn);
+            });
+        }
+
+        function renderFill(q, score) {
+            const opts = document.getElementById("options");
+            opts.innerHTML = "";
+
+            const pattern = (q.pattern || "").toUpperCase();
+            const answer = (q.answer || "").toUpperCase();
+
+            const slotIndexes = [];
+            for (let i = 0; i < pattern.length; i++) {
+                if (pattern[i] === "_") slotIndexes.push(i);
+            }
+
+            const filled = new Array(pattern.length).fill("");
+            for (let i = 0; i < pattern.length; i++) {
+                if (pattern[i] !== "_") filled[i] = pattern[i];
+            }
+
+            const wordWrap = document.createElement("div");
+            wordWrap.className = "flex flex-wrap gap-2 items-center justify-center mt-1";
+            opts.appendChild(wordWrap);
+
+            const slots = [];
+            for (let i = 0; i < pattern.length; i++) {
+                const el = document.createElement("button");
+                el.type = "button";
+                el.className = "slot tap";
+                el.textContent = filled[i] || "";
+                el.dataset.index = String(i);
+                el.onclick = () => {
+                    if (pattern[i] !== "_") return;
+                    if (!filled[i]) return;
+                    filled[i] = "";
+                    el.textContent = "";
+                    el.classList.remove("filled");
+                    const usedKey = `used_${i}`;
+                    const usedLetter = el.dataset[usedKey];
+                    if (usedLetter) {
+                        const btn = letterBtns.find(b => b.dataset.letter === usedLetter && b.disabled);
+                        if (btn) btn.disabled = false;
+                        delete el.dataset[usedKey];
+                    }
+                    checkComplete();
+                };
+                if (filled[i]) el.classList.add("filled");
+                wordWrap.appendChild(el);
+                slots.push(el);
+            }
+
+            const pool = (q.pool || []).map(x => String(x).toUpperCase());
+            const lettersWrap = document.createElement("div");
+            lettersWrap.className = "mt-4 flex flex-wrap gap-2 items-center justify-center";
+            opts.appendChild(lettersWrap);
+
+            let activeSlotPtr = 0;
+            function nextEmptySlot() {
+                while (activeSlotPtr < slotIndexes.length) {
+                    const idx = slotIndexes[activeSlotPtr];
+                    if (!filled[idx]) return idx;
+                    activeSlotPtr++;
+                }
+
+                for (const idx of slotIndexes) if (!filled[idx]) return idx;
+                return null;
+            }
+
+            const letterBtns = [];
+            pool.forEach((L) => {
+                const b = document.createElement("button");
+                b.type = "button";
+                b.className = "letter-btn tap";
+                b.textContent = L;
+                b.dataset.letter = L;
+
+                b.onclick = () => {
+                    const idx = nextEmptySlot();
+                    if (idx === null) return;
+                    filled[idx] = L;
+                    slots[idx].textContent = L;
+                    slots[idx].classList.add("filled");
+                    slots[idx].dataset[`used_${idx}`] = L;
+                    b.disabled = true;
+                    checkComplete();
+                };
+                lettersWrap.appendChild(b);
+                letterBtns.push(b);
+            });
+
+            function checkComplete() {
+                const done = slotIndexes.every(i => filled[i]);
+                if (!done) return;
+                const userWord = filled.join("");
+                const ok = (userWord === answer);
+                if (ok) {
+                    const newScore = score + 1;
+                    sessionStorage.setItem("quizScore", String(newScore));
+                    document.getElementById("scoreBadge").textContent = `${newScore}`;
+
+                    letterBtns.forEach(b => b.disabled = true);
+                    slots.forEach(s => s.disabled = true);
+
+                    showFeedback(true, `<span class="text-emerald-600">Benar!</span> Kata Yang Kamu Susun: <span class="underline">${userWord}</span>. JosJis!`);
+                    lockNext();
+                } else {
+                    showFeedback(false, `<span class="text-rose-600">Belum tepat.<br>Coba klik slot untuk hapus huruf ya!`);
+
+                    slots.forEach((s, idx) => {
+                        if (pattern[idx] === "_") s.disabled = false;
+                    });
+                }
+            }
+
+        }
+
+        function render() {
+            const i = Number(sessionStorage.getItem("quizIndex") || "0");
+            const score = Number(sessionStorage.getItem("quizScore") || "0");
+            const total = QUIZ.length;
+            const q = QUIZ[i];
+            document.getElementById("progress").textContent = `Soal ${i + 1} / ${total}`;
+            document.getElementById("question").textContent = q.q;
+            document.getElementById("hintText").textContent = q.hint || "-";
+            document.getElementById("scoreBadge").textContent = `${score}`;
+            resetFeedbackUI();
+            const opts = document.getElementById("options");
+            opts.classList.remove("pop-in");
+            void opts.offsetWidth;
+            opts.classList.add("pop-in", "delay-2");
+            if (q.type === "fill") {
+                renderFill(q, score);
+            } else {
+                renderMCQ(q, score);
+            }
+        }
+
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem("quizIndex") === null) {
+                sessionStorage.setItem("quizIndex", "0");
+                sessionStorage.setItem("quizScore", "0");
+            }
+
+            document.getElementById("btnHint").addEventListener("click", () => {
+                document.getElementById("hintBox").classList.toggle("hidden");
+            });
+
+            document.getElementById("btnNext").addEventListener("click", () => {
+                const i = Number(sessionStorage.getItem("quizIndex") || "0");
+                const next = i + 1;
+                if (next >= QUIZ.length) {
+                    const score = Number(sessionStorage.getItem("quizScore") || "0");
+                    localStorage.setItem("lastQuizScore", String(score));
+                    localStorage.setItem("lastQuizTotal", String(QUIZ.length));
+                    sessionStorage.removeItem("quizIndex");
+                    sessionStorage.removeItem("quizScore");
+                    location.href = "skor.html";
+                } else {
+                    sessionStorage.setItem("quizIndex", String(next));
+                    document.getElementById("hintBox").classList.add("hidden");
+                    const card = document.getElementById("quizCard");
+                    card.classList.remove("pop-in");
+                    void card.offsetWidth;
+                    card.classList.add("pop-in");
+
+                    render();
+                }
+            });
+
+            document.getElementById("btnRestart").addEventListener("click", () => {
+                sessionStorage.setItem("quizIndex", "0");
+                sessionStorage.setItem("quizScore", "0");
+                document.getElementById("hintBox").classList.add("hidden");
+                const card = document.getElementById("quizCard");
+                card.classList.remove("pop-in");
+                void card.offsetWidth;
+                card.classList.add("pop-in");
+                render();
+            });
+            render();
+        });
+    </script>
+</head>
+
+<body class="min-h-screen bg-slate-900 bg-[url('./assets/1.png')] bg-cover bg-center bg-no-repeat text-slate-900">
+
+    <div class="relative z-10 max-w-3xl mx-auto px-5 py-10">
+
+        <header class="flex items-center justify-between gap-3 pop-in">
+            <a href="index.html"
+                class="tap inline-flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow border border-white font-bold text-slate-700 hover:text-slate-900">
+                ← Kembali
+            </a>
+            <button id="btnRestart"
+                class="tap inline-flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow border border-white font-bold text-slate-700 hover:text-slate-900">
+                Ulangi
+            </button>
+        </header>
+
+        <main id="quizCard" class="mt-6 rounded-[28px] bg-white/85 p-7 shadow-xl border border-white pop-in delay-1">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <div id="progress" class="text-sm text-slate-600 font-extrabold"></div>
+                    <h1 id="question" class="mt-2 text-xl md:text-2xl font-extrabold leading-snug text-slate-900"></h1>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <div id="scoreBadge"
+                        class="pulse-soft hover:animate-none inline-flex items-center gap-2 bg-sky-500 text-white font-extrabold px-4 py-2 rounded-full shadow">
+                        0
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 flex gap-3 flex-wrap">
+                <button id="btnHint"
+                    class="tap rounded-2xl border border-white bg-white/80 px-4 py-2 font-extrabold text-slate-800 shadow hover:bg-white transition">
+                    Petunjuk
+                </button>
+            </div>
+
+            <div id="hintBox" class="hidden mt-4 rounded-[22px] border border-white bg-white/70 p-4 shadow pop-in">
+                <div class="text-xs text-slate-600 font-extrabold">Petunjuk</div>
+                <div id="hintText" class="mt-1 text-slate-800 font-medium"></div>
+            </div>
+            <div id="options" class="mt-6 grid gap-3"></div>
+            <div id="feedback" class="hidden"></div>
+            <button id="btnNext"
+                class="hidden mt-5 w-full tap pulse-soft hover:animate-none rounded-2xl bg-sky-400 px-6 py-4 text-lg font-extrabold text-slate-900 shadow hover:bg-sky-300 transition">
+                Lanjut ➜
+            </button>
+            <p class="mt-4 text-sm font-semibold text-slate-700">
+                Tip: baca pelan-pelan ya, kamu pasti bisa
+            </p>
+        </main>
+    </div>
+</body>
+
+</html>

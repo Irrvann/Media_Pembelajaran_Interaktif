@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Habitat - Hewan & Habitatnya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="./data.js"></script>
+
+    <style>
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px) scale(.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .pop-in {
+            animation: popIn .75s ease-out both;
+        }
+
+        .delay-1 {
+            animation-delay: .06s;
+        }
+
+        .delay-2 {
+            animation-delay: .14s;
+        }
+
+        .delay-3 {
+            animation-delay: .22s;
+        }
+
+        @keyframes softPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+        }
+
+        .pulse-soft {
+            animation: softPulse 2.8s ease-in-out infinite;
+        }
+
+        .tap {
+            transform: translateY(0);
+            transition: transform .12s ease;
+        }
+
+        .tap:active {
+            transform: translateY(2px) scale(.99);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .pop-in,
+            .pulse-soft {
+                animation: none !important;
+            }
+
+            .tap {
+                transition: none !important;
+            }
+        }
+    </style>
+
+    <script defer>
+        function qs(name) { return new URLSearchParams(location.search).get(name); }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const hid = qs("hid");
+            let sid = qs("sid");
+
+            const bgKey = (sid && window.BG[sid]) ? sid : (window.BG[hid] ? hid : "default");
+            document.body.style.backgroundImage = `url('${window.BG[bgKey]}')`;
+
+            const habitat = HABITATS.find(x => x.id === hid);
+            if (!habitat) { location.href = "materi.html"; return; }
+
+            const subList = habitat.children || [];
+            const chosenSub = (() => {
+                if (subList.length === 0) return null;
+                if (!sid) sid = subList[0].id;
+                return subList.find(s => s.id === sid) || subList[0];
+            })();
+
+            document.getElementById("title").textContent = habitat.title;
+            document.getElementById("desc").textContent = habitat.desc;
+
+            const scene = (chosenSub && chosenSub.scene) ? chosenSub.scene : habitat.scene;
+            if (scene && !scene.includes("PASTE_LINK")) {
+                document.getElementById("sceneFrame").src = scene;
+                document.getElementById("sceneBox").classList.remove("hidden");
+            }
+
+            if (subList.length > 1) {
+                const chips = document.getElementById("chips");
+                chips.classList.remove("hidden");
+                chips.innerHTML = "";
+
+                subList.forEach((s, idx) => {
+                    const a = document.createElement("a");
+                    a.href = `habitat.html?hid=${encodeURIComponent(hid)}&sid=${encodeURIComponent(s.id)}`;
+                    const active = s.id === (chosenSub?.id);
+
+                    a.className =
+                        "tap px-4 py-2 rounded-full border text-sm font-extrabold transition shadow-sm " +
+                        (active
+                            ? "bg-sky-400 text-slate-900 border-sky-500"
+                            : "bg-white/70 text-slate-800 border-white hover:bg-white/90");
+
+                    if (active) a.classList.add("pulse-soft");
+                    a.style.animationDelay = `${0.1 + idx * 0.08}s`;
+
+                    a.textContent = s.title;
+                    chips.appendChild(a);
+                });
+
+                document.getElementById("subTitle").textContent = chosenSub.title;
+                document.getElementById("subDesc").textContent = chosenSub.desc;
+            } else if (chosenSub) {
+                document.getElementById("subTitle").textContent = chosenSub.title;
+                document.getElementById("subDesc").textContent = chosenSub.desc;
+            } else {
+                document.getElementById("subTitle").textContent = "Deskripsi";
+                document.getElementById("subDesc").textContent = "—";
+            }
+
+            const toAnimals = document.getElementById("toAnimals");
+            toAnimals.href = `hewan.html?hid=${encodeURIComponent(hid)}&sid=${encodeURIComponent(chosenSub?.id || "")}`;
+        });
+    </script>
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js" type="module"></script>
+</head>
+
+<body class="min-h-screen bg-cover bg-center bg-no-repeat text-slate-900">
+    <div class="fixed top-0 right-12 md:right-1/4 z-[9999] pointer-events-none">
+        <dotlottie-wc src="https://lottie.host/ea1f0a88-a75c-4ea9-8e6a-497bc2bd46c7/fNFasD9eKa.lottie"
+            style="width: min(260px, 45vw); height: min(200px, 35vw);" autoplay loop>
+        </dotlottie-wc>
+    </div>
+
+
+    <div class="max-w-5xl mx-auto px-5 py-10 relative z-10 mt-10 md:mt-24 mb-10 md:mb-24">
+        <header class="flex items-center justify-between gap-3 pop-in">
+            <a href="materi.html"
+                class="tap inline-flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow border border-white font-bold text-slate-700 hover:text-slate-900">
+                ← Kembali
+            </a>
+
+            <a href="index.html"
+                class="tap inline-flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow border border-white font-bold text-slate-700 hover:text-slate-900">
+                Beranda
+            </a>
+        </header>
+
+        <main class="mt-6">
+            <div class="bg-white/80 rounded-3xl px-6 py-5 shadow-lg border border-white pop-in delay-1">
+                <h1 id="title" class="text-3xl md:text-4xl font-extrabold tracking-tight">
+                </h1>
+                <p id="desc" class="mt-2 text-slate-700 leading-relaxed font-medium"></p>
+
+                <div
+                    class="mt-3 inline-flex items-center gap-2 bg-sky-500 text-white font-extrabold px-4 py-2 rounded-full shadow pulse-soft hover:animate-none">
+                    Pilih bagian habitatnya ya!
+                </div>
+            </div>
+
+            <div id="chips" class="hidden mt-6 flex flex-wrap gap-2 pop-in delay-2"></div>
+            <section class="mt-6 rounded-[28px] bg-white/85 p-7 shadow-xl border border-white pop-in delay-3">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div id="subTitle" class="text-2xl font-extrabold text-slate-900"></div>
+                        <p id="subDesc" class="mt-2 text-slate-700 leading-relaxed"></p>
+                    </div>
+                </div>
+                <div id="sceneBox"
+                    class="hidden mt-6 overflow-hidden rounded-2xl border border-white bg-black/20 aspect-[16/10] shadow">
+                    <iframe id="sceneFrame" class="w-full h-full" title="3D Habitat" frameborder="0"
+                        allow="autoplay; fullscreen; xr-spatial-tracking" mozallowfullscreen="true"
+                        webkitallowfullscreen="true"></iframe>
+                </div>
+                <a id="toAnimals"
+                    class="mt-6 tap pulse-soft hover:animate-none inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-sky-400 hover:bg-sky-300 px-6 py-4 text-lg font-extrabold text-slate-900 shadow transition">
+                    Lihat Hewan
+                </a>
+                <p class="mt-3 text-sm text-slate-600 font-semibold">
+                    Tips: Gambar model 3D bisa digeser dan diperbesar dengan jari atau mouse.
+                </p>
+            </section>
+        </main>
+
+        <footer class="mt-12 text-center pop-in delay-2">
+            <div
+                class="inline-flex flex-col items-center bg-white/80 px-12 py-8 rounded-3xl shadow text-sm font-semibold text-slate-700">
+                <dotlottie-wc src="https://lottie.host/3d1f84c1-32af-4f4b-8a99-6f7cd7b21905/hgPKVDCrTy.lottie"
+                    style="width: 200px; height: 50px;" autoplay loop>
+                </dotlottie-wc>
+                <div class="mt-1 text-sm">
+                    created by
+                    <a href="https://instagram.com/_irvln" class="text-sky-500 text-sm hover:underline">
+                        Muhammad Irvan Maulana
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <button id="musicBtn"
+        class="fixed bottom-5 right-5 z-[9999] bg-white/85 backdrop-blur px-4 py-3 rounded-2xl shadow-lg border  font-extrabold text-slate-800 tap">
+        🔊 Putar Musik
+    </button>
+
+    <audio id="bgm" preload="auto" loop>
+        <source src="/assets/lagu/musik-anak.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const bgm = document.getElementById('bgm');
+        const btn = document.getElementById('musicBtn');
+
+        let playing = false;
+        async function playMusic() {
+            try {
+                await bgm.play();
+                playing = true;
+                btn.textContent = "🔇 Matikan Musik";
+            } catch (e) {
+                console.log("Play blocked:", e);
+            }
+        }
+        function stopMusic() {
+            bgm.pause();
+            playing = false;
+            btn.textContent = "🔊 Putar Musik";
+        }
+        btn.addEventListener('click', () => {
+            if (!playing) playMusic();
+            else stopMusic();
+        });
+        bgm.volume = 0.35;
+        if (playing) {
+            const once = () => { playMusic(); window.removeEventListener('click', once); };
+            window.addEventListener('click', once);
+        }
+    </script>
+</body>
+</html>
