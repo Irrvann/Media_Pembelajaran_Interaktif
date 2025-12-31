@@ -260,16 +260,16 @@ window.QUIZ = [
 ];
 
 window.BG = {
-    default: "./assets/7.png",
+    default: "./assets/7.webp",
 
-    darat: "./assets/7.png",
-    air: "./assets/6.png",
-    amfibi: "./assets/5.png",
+    darat: "./assets/7.webp",
+    air: "./assets/6.webp",
+    amfibi: "./assets/5.webp",
 
-    hutan: "./assets/1.png",
-    gurun: "./assets/2.png",
-    kutub: "./assets/3.png",
-    sawah: "./assets/4.png",
-    sungai: "./assets/5.png",
-    laut: "./assets/6.png",
+    hutan: "./assets/1.webp",
+    gurun: "./assets/2.webp",
+    kutub: "./assets/3.webp",
+    sawah: "./assets/4.webp",
+    sungai: "./assets/5.webp",
+    laut: "./assets/6.webp",
 };
