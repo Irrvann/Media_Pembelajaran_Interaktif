@@ -83,7 +83,7 @@ window.HABITATS = [
             },
             {
                 id: "sawah",
-                title: "Sawah / Kebun)",
+                title: "Sawah / Kebun",
                 desc: "Sawah dan kebun adalah lingkungan yang dekat dengan kehidupan manusia dan sering dijumpai di sekitar rumah. Di tempat ini, terdapat banyak hewan ternak dan hewan kecil yang hidup berdampingan dengan manusia. Sawah dan kebun juga menjadi tempat hewan mencari makan dan berlindung.",
 
                 scene: SCENES.sawah,
