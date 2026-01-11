@@ -173,7 +173,7 @@
                 ? customHtml
                 : (ok
                     ? `<span class="text-emerald-600">Benar!</span> JosJis!`
-                    : `<span class="text-rose-600">Belum tepat.</span> Coba lagi ya 😊`);
+                    : `<span class="text-rose-600">Belum tepat.</span> Belajar lagi ya`);
         }
 
         function lockNext() {
@@ -216,7 +216,7 @@
                     }
                     showFeedback(ok, ok
                         ? `<span class="text-emerald-600">Benar!</span> JosJis!`
-                        : `<span class="text-rose-600">Belum tepat.</span> Bisa lihat petunjuk dulu ya.`
+                        : `<span class="text-rose-600">Belum tepat.</span> Belajar lagi ya.`
                     );
                     lockNext();
                 };
@@ -328,12 +328,13 @@
                     showFeedback(true, `<span class="text-emerald-600">Benar!</span> Kata Yang Kamu Susun: <span class="underline">${userWord}</span>. JosJis!`);
                     lockNext();
                 } else {
-                    showFeedback(false, `<span class="text-rose-600">Belum tepat.<br>Coba klik slot untuk hapus huruf ya!`);
+                    letterBtns.forEach(b => b.disabled = true);
+                    slots.forEach(s => s.disabled = true);
 
-                    slots.forEach((s, idx) => {
-                        if (pattern[idx] === "_") s.disabled = false;
-                    });
+                    showFeedback(false, `<span class="text-rose-600">Belum tepat.</span> Belajar lagi ya. Kata Yang Kamu Susun: <span class="underline">${userWord}</span>.`);
+                    lockNext();
                 }
+
             }
 
         }
@@ -414,7 +415,7 @@
         <header class="flex items-center justify-between gap-3 pop-in">
             <a href="index.html"
                 class="tap inline-flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow border border-white font-bold text-slate-700 hover:text-slate-900">
-                ← Kembali
+                Kembali
             </a>
             <button id="btnRestart"
                 class="tap inline-flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow border border-white font-bold text-slate-700 hover:text-slate-900">
@@ -454,7 +455,7 @@
                 Lanjut ➜
             </button>
             <p class="mt-4 text-sm font-semibold text-slate-700">
-                Tip: baca pelan-pelan ya, kamu pasti bisa
+                Tips: baca pelan-pelan ya, kamu pasti bisa, aku yakin kok sama kamu!
             </p>
         </main>
     </div>
