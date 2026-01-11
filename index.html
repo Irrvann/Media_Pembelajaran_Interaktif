@@ -167,7 +167,7 @@
 
     <button id="musicBtn"
         class="fixed bottom-5 right-5 z-[9999] bg-white/85 backdrop-blur px-4 py-3 rounded-2xl shadow-lg border  font-extrabold text-slate-800 tap">
-        Putar Musik1
+        Putar Musik
     </button>
 
     <audio id="bgm" preload="auto" loop>
@@ -182,7 +182,7 @@
             try {
                 await bgm.play();
                 playing = true;
-                btn.textContent = "Matikan Musik1";
+                btn.textContent = "Matikan Musik";
             } catch (e) {
                 console.log("Play blocked:", e);
             }
@@ -190,7 +190,7 @@
         function stopMusic() {
             bgm.pause();
             playing = false;
-            btn.textContent = "Putar Musik1";
+            btn.textContent = "Putar Musik";
         }
         btn.addEventListener('click', () => {
             if (!playing) playMusic();
